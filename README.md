@@ -1,25 +1,26 @@
-# 🤖 Modern Chatbot with Voice Recognition
+# 🤖 Modern AI Chatbot with Avatar Interface
 
-Chatbot modern dengan integrasi Google Gemini AI dan fitur voice recognition. Dibangun menggunakan React + TypeScript dengan Vite untuk performa optimal.
+Chatbot modern dengan integrasi Google Gemini AI, avatar video, dan fitur voice recognition. Dibangun menggunakan React + TypeScript dengan Vite untuk performa optimal.
 
-## ✨ Fitur Utama
+## ✨ Fitur Terbaru (Updated July 2025)
 
-- 💬 **Chat Interface Modern**: UI yang clean dan responsif dengan animasi smooth
-- 🎤 **Voice Recognition**: Input suara menggunakan Web Speech API
-- 🧠 **Google Gemini AI**: Respons cerdas dari AI terdepan
-- 📱 **Responsive Design**: Tampilan optimal di semua perangkat
-- 🎨 **Modern UI/UX**: Desain gradient dan glassmorphism
-- ⚡ **Real-time Chat**: Komunikasi instant dengan typing indicator
-- 🔧 **TypeScript**: Type safety dan developer experience yang baik
+- 🎬 **Video Avatar Interface**: Avatar video interaktif dengan berbagai ekspresi (idle, listening, speaking, thinking, happy)
+- 🗣️ **ElevenLabs TTS Integration**: Text-to-speech berkualitas tinggi (dengan fallback ke browser TTS)
+- 🔄 **Continuous Mode**: Mode percakapan berkelanjutan dengan deteksi jeda
+- 💬 **Subtitle Animation**: Tampilan subtitle real-time saat avatar berbicara
+- 📱 **Full Mode Interface**: Tampilan chatbot lengkap dengan avatar video
+- 🎤 **Advanced Voice Recognition**: Peningkatan akurasi input suara
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 18 + TypeScript + Vite
 - **AI Integration**: Google Gemini API
 - **Voice Recognition**: Web Speech API
+- **Text-to-Speech**: ElevenLabs API dengan browser TTS fallback
 - **Styling**: Modern CSS dengan animasi
+- **Media**: Video avatar dengan multiple states
 - **Icons**: Lucide React
-- **Build Tool**: Vite (Lightning fast)
+- **Build Tool**: Vite
 
 ## 🚀 Quick Start
 
@@ -40,9 +41,9 @@ cd chatbot-modern
 npm install
 ```
 
-3. **Setup Google Gemini API**
-   - API Key sudah dikonfigurasi: `AIzaSyDHUaGPrnXOx5X6hJUGccMihtYxMsbBZBQ`
-   - Untuk production, ganti dengan API key Anda di `src/services/geminiService.ts`
+3. **Setup API Keys**
+   - Google Gemini API Key: Configure di environment variables atau di `src/services/geminiService.ts`
+   - ElevenLabs API Key: Configure di environment variables atau di `src/services/elevenLabsService.ts`
 
 4. **Run development server**
 ```bash
@@ -59,109 +60,70 @@ npm run build
 ```
 src/
 ├── components/
-│   ├── ChatWidget.tsx      # Komponen chatbot utama
-│   └── ChatWidget.css      # Styling chatbot
+│   ├── FullModeChatbot.tsx     # Komponen chatbot utama dengan avatar
+│   ├── FullModeChatbot.css     # Styling untuk full mode
+│   ├── TypingIndicator.tsx     # Indikator saat AI mengetik
+│   ├── VideoAvatar.tsx         # Komponen avatar video
+│   └── VideoAvatar.css         # Styling untuk avatar
 ├── hooks/
-│   └── useVoiceRecognition.ts  # Custom hook untuk voice
+│   └── useVoiceRecognition.ts  # Custom hook untuk voice input
 ├── services/
-│   └── geminiService.ts    # Service Google Gemini API
+│   ├── chatHistoryService.ts   # Pengelolaan history chat
+│   ├── elevenLabsService.ts    # Integrasi ElevenLabs TTS
+│   ├── geminiService.ts        # Integrasi Google Gemini API
+│   └── profanityFilter.ts      # Filter konten tidak pantas
 ├── types/
-│   └── chatbot.ts         # TypeScript interfaces
-├── App.tsx                # Main app dengan dummy website
-├── App.css               # Website styling
-└── main.tsx              # Entry point
+│   └── chatbot.ts              # TypeScript interfaces
+├── assets/
+│   └── [static assets]         # Gambar dan aset statis
+├── App.tsx                     # Main app container
+└── main.tsx                    # Entry point
 ```
 
-## 🎯 Cara Penggunaan
+## 🎯 Fitur Avatar Mode
 
-### Integrasi ke Website Existing
+### Video Avatar States
+- **Idle**: Saat menunggu input
+- **Listening**: Saat mendengarkan input suara
+- **Thinking**: Saat memproses respons
+- **Speaking**: Saat memberikan respons
+- **Happy**: Ekspresi positif pada respons tertentu
 
-1. **Copy komponen ChatWidget**:
-   - `src/components/ChatWidget.tsx`
-   - `src/components/ChatWidget.css`
+### Continuous Mode
+- Aktifkan untuk percakapan berkelanjutan
+- Otomatis mendeteksi jeda untuk mengirim input
+- Indikator visual untuk mode berkelanjutan
 
-2. **Copy dependencies**:
-   - `src/hooks/useVoiceRecognition.ts`
-   - `src/services/geminiService.ts`
-   - `src/types/chatbot.ts`
+## 🎨 Text-to-Speech Options
 
-3. **Install packages**:
-```bash
-npm install @google/generative-ai lucide-react
-```
-
-4. **Import dan gunakan**:
-```tsx
-import ChatWidget from './components/ChatWidget';
-
-function App() {
-  return (
-    <div>
-      {/* Konten website Anda */}
-      <ChatWidget />
-    </div>
-  );
-}
-```
-
-### Kustomisasi Website Context
-
-Untuk memberikan konteks website spesifik, edit bagian ini di `ChatWidget.tsx`:
-
+### ElevenLabs Integration
 ```typescript
-const websiteContext = `
-  // Ganti dengan informasi website Anda
-  Website ini adalah platform e-commerce yang menjual produk teknologi.
-  Kami menyediakan smartphone, laptop, aksesoris, dan gadget terbaru.
-  Tim customer service kami siap membantu 24/7.
-`;
+// Konfigurasi ElevenLabs
+const ELEVEN_LABS_API_KEY = import.meta.env.VITE_ELEVEN_LABS_API_KEY || '';
+const VOICE_ID = ;
 ```
 
-## 🎨 Kustomisasi Styling
-
-### Warna Tema
-Edit variabel CSS di `ChatWidget.css`:
-```css
-/* Ganti gradient utama */
-background: linear-gradient(135deg, #YOUR_COLOR_1 0%, #YOUR_COLOR_2 100%);
-```
-
-### Posisi Chatbot
-Chatbot default di pojok kanan bawah. Untuk mengubah posisi:
-```css
-.chat-widget {
-  bottom: 20px;    /* Jarak dari bawah */
-  right: 20px;     /* Jarak dari kanan */
-  /* atau gunakan left: 20px; untuk pojok kiri */
-}
-```
+### Browser Fallback
+- Otomatis beralih ke browser TTS jika ElevenLabs tidak tersedia
+- Konfigurasi pitch dan rate untuk pengalaman optimal
 
 ## 🔧 Konfigurasi
 
-### Google Gemini API
-```typescript
-// src/services/geminiService.ts
-const API_KEY = 'YOUR_GEMINI_API_KEY';
+### Environment Variables
+Buat file `.env` di root project:
+```
+VITE_GEMINI_API_KEY=your_gemini_api_key
+VITE_ELEVENLABS_API_KEY=your_elevenlabs_key
 ```
 
-### Voice Recognition
-```typescript
-// Bahasa default Indonesia
-recognition.lang = 'id-ID';
+### Avatar Customization
+Ganti video di folder `public/avatars/video/states/` dengan avatar kustom Anda.
 
-// Untuk bahasa lain:
-// 'en-US' - English
-// 'ja-JP' - Japanese
-// 'ko-KR' - Korean
-```
+## 📱 Responsiveness
 
-## 📱 Fitur Voice Recognition
-
-- **Tekan tombol mikrofon** untuk mulai recording
-- **Berbicara dengan jelas** dalam bahasa Indonesia
-- **Otomatis berhenti** setelah jeda
-- **Indikator visual** saat mendengarkan
-- **Fallback ke text input** jika voice tidak didukung
+- **Desktop**: Tampilan penuh dengan avatar video
+- **Mobile**: Adaptif dengan kontrol yang lebih compact
+- **Tablet**: Layout yang dioptimalkan untuk layar menengah
 
 ## 🚀 Deployment
 
@@ -172,23 +134,18 @@ vercel --prod
 ```
 
 ### Netlify
+Konfigurasi sudah tersedia di `netlify.toml`
 ```bash
 npm run build
-# Upload folder dist/ ke Netlify
-```
-
-### Manual
-```bash
-npm run build
-# Upload folder dist/ ke hosting Anda
+netlify deploy --prod
 ```
 
 ## 🔒 Keamanan
 
 ⚠️ **Penting**: 
-- Ganti API key dengan yang baru untuk production
-- Gunakan environment variables untuk API key
-- Implementasi rate limiting jika diperlukan
+- Gunakan environment variables untuk API key di production
+- ElevenLabs API memiliki rate limiting, pertimbangkan untuk implementasi caching
+- Aktifkan profanity filter untuk konten yang aman
 
 ## 🤝 Contributing
 
@@ -198,151 +155,5 @@ npm run build
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open Pull Request
 
-## 📝 License
 
-MIT License - lihat file [LICENSE](LICENSE) untuk detail.
-
-## 🙋‍♂️ Support
-
-Jika ada pertanyaan atau butuh bantuan:
-- Buka issue di GitHub
-- Email: support@technovision.com
-
----
-
-**Dibuat dengan ❤️ menggunakan React + TypeScript + Google Gemini AI**
-
-# Modern Chatbot Application
-
-## 🚀 Teknologi Stack
-
-### Frontend
-- **React 19** + **TypeScript** - Framework modern dengan type safety
-- **Vite** - Build tool super cepat 
-- **CSS Modern** - Glassmorphism design, animations
-- **Lucide React** - Icon library
-
-### AI & Voice Integration
-- **Google Gemini AI** - AI engine utama
-- **ElevenLabs** - Text-to-speech premium
-- **Web Speech API** - Voice recognition
-- **Speech Synthesis API** - Text-to-speech native
-
-## 🏗️ Arsitektur Project
-
-### Component Structure
-```
-src/components/
-├── FullModeChatbot.tsx    # Main chatbot dengan dual mode
-├── AvatarChatbot.tsx      # Avatar-based interface  
-├── CompactChatbot.tsx     # Widget mode
-├── CSSAvatar.tsx          # Animated avatar
-├── HumanAvatar.tsx        # Human-like avatar
-└── ChatWidget.tsx         # Floating widget
-```
-
-### Services Layer
-```
-src/services/
-├── geminiService.ts       # Google AI integration
-├── chatHistoryService.ts  # Local storage management
-└── profanityFilter.ts     # Content filtering
-```
-
-## 🎯 Fitur Utama
-
-### Dual Mode Interface
-1. **Avatar Mode** - Voice-first interaction
-2. **Text Mode** - Traditional chat
-
-### Voice Features
-- Speech Recognition (Indonesian support)
-- Text-to-Speech dengan subtitle animation
-- Audio controls (mute/unmute)
-- Voice activity detection
-
-## 🛠️ Setup Development
-
-### Prerequisites
-- Node.js 18+
-- npm atau yarn
-- Google Gemini API Key
-- ElevenLabs API Key
-
-### Installation
-```bash
-# Clone repository
-git clone <your-repo-url>
-cd chatbot-dari-awal
-
-# Install dependencies
-npm install
-
-# Setup environment variables
-cp .env.example .env
-# Edit .env dengan API keys Anda
-
-# Start development server
-npm run dev
-```
-
-### Environment Variables
-```env
-VITE_GEMINI_API_KEY=your_gemini_api_key
-VITE_ELEVENLABS_API_KEY=your_elevenlabs_key
-```
-
-## 🚀 Deployment
-
-### Build untuk Production
-```bash
-npm run build
-```
-
-### Platform Deployment
-
-#### Vercel (Recommended)
-```bash
-npm install -g vercel
-vercel --prod
-```
-
-#### Netlify
-```bash
-npm run build
-# Upload dist/ folder ke Netlify
-```
-
-#### Firebase Hosting
-```bash
-npm install -g firebase-tools
-firebase init hosting
-firebase deploy
-```
-
-## 🔧 Development Commands
-
-```bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm run preview  # Preview production build
-npm run lint     # Run ESLint
-```
-
-## 📱 Browser Support
-
-- Chrome 25+ (Speech Recognition)
-- Firefox 49+ (Limited speech support)
-- Safari 14.1+ (Limited speech support)
-- Edge 79+
-
-## 🔒 Security Notes
-
-- API keys hanya untuk development
-- Untuk production, gunakan backend proxy
-- Implementasi rate limiting
-- Content filtering aktif
-
-## 📄 License
-
-MIT License
+**Dibuat dengan menggunakan React + TypeScript + Google Gemini AI + ElevenLabs**
