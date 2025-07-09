@@ -69,7 +69,7 @@ export const useVoiceRecognition = () => {
         }
       }
     };
-  }, []);
+  }, [isListening]);
 
   // Cleanup when listening state changes
   useEffect(() => {
@@ -100,6 +100,17 @@ export const useVoiceRecognition = () => {
     setError(null);
     
     try {
+      // Stop any existing recognition first
+      try {
+        recognition.stop();
+        recognition.abort();
+      } catch {
+        // Ignore stop errors - recognition might not be running
+      }
+      
+      // Small delay to ensure recognition is fully stopped
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Configure recognition
       recognition.continuous = options?.continuous ?? false;
       recognition.interimResults = options?.interimResults ?? true;
@@ -168,13 +179,49 @@ export const useVoiceRecognition = () => {
           case 'language-not-supported':
             setError('Language not supported for speech recognition.');
             break;
+          case 'aborted':
+            // Don't show error for aborted recognition - this is normal
+            console.log('Speech recognition was aborted');
+            break;
           default:
             setError(`Speech recognition error: ${event.error}`);
         }
       };
 
-      recognition.start();
-      console.log('🚀 Starting speech recognition...');
+      // Try to start recognition with additional error handling
+      try {
+        recognition.start();
+        console.log('🚀 Starting speech recognition...');
+      } catch (startError: unknown) {
+        console.error('❌ Error calling recognition.start():', startError);
+        
+        // Handle the specific "already started" error
+        if (startError instanceof Error && startError.message && startError.message.includes('already started')) {
+          console.log('Recognition already started, resetting...');
+          // Reset the recognition state
+          setIsListening(false);
+          isStartingRef.current = false;
+          
+          // Try to create a new recognition instance
+          try {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognitionRef.current = new SpeechRecognition();
+            console.log('✅ Created new speech recognition instance');
+            
+            // Retry starting with new instance
+            setTimeout(() => {
+              startListening(options);
+            }, 200);
+          } catch (createError) {
+            console.error('❌ Failed to create new recognition instance:', createError);
+            setError('Failed to initialize speech recognition. Please refresh the page.');
+          }
+        } else {
+          setIsListening(false);
+          isStartingRef.current = false;
+          setError('Failed to start speech recognition. Please try again.');
+        }
+      }
       
     } catch (error) {
       console.error('❌ Error starting speech recognition:', error);
@@ -191,7 +238,12 @@ export const useVoiceRecognition = () => {
         console.log('⏹️ Stopping speech recognition...');
       } catch (error) {
         console.error('❌ Error stopping speech recognition:', error);
+        // Force reset state even if stop fails
+        setIsListening(false);
+        isStartingRef.current = false;
       }
+    } else {
+      // Even if recognition is not active, ensure state is reset
       setIsListening(false);
       isStartingRef.current = false;
     }

@@ -33,7 +33,6 @@ Chatbot modern dengan integrasi Google Gemini AI, avatar video, dan fitur voice 
 1. **Clone repository**
 ```bash
 git clone <repository-url>
-cd chatbot-modern
 ```
 
 2. **Install dependencies**

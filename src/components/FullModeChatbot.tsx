@@ -4,7 +4,6 @@ import { geminiService } from '../services/geminiService';
 import { ChatHistoryService } from '../services/chatHistoryService';
 import { useVoiceRecognition } from '../hooks/useVoiceRecognition';
 import { profanityFilter } from '../services/profanityFilter';
-import { elevenLabsService } from '../services/elevenlabsService';
 import type { Message, ChatbotState } from '../types/chatbot';
 import VideoAvatar from './VideoAvatar';
 import './FullModeChatbot.css';
@@ -35,7 +34,6 @@ const FullModeChatbot: React.FC = () => {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [inputText, setInputText] = useState('');
   const [isProcessingResponse, setIsProcessingResponse] = useState(false);
-  const [isElevenLabsAvailable, setIsElevenLabsAvailable] = useState(false);
   const [continuousInputBuffer, setContinuousInputBuffer] = useState('');
   const [continuousModeActive, setContinuousModeActive] = useState(false);
   
@@ -62,39 +60,12 @@ const FullModeChatbot: React.FC = () => {
     return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }, []);
 
-  // Check if ElevenLabs API is available on component mount
-  useEffect(() => {
-    const checkElevenLabsAvailability = async () => {
-      try {
-        const isAvailable = await elevenLabsService.checkApiKey();
-        setIsElevenLabsAvailable(isAvailable);
-        console.log(`ElevenLabs API is ${isAvailable ? 'available' : 'not available'}`);
-      } catch (error) {
-        console.error('Error checking ElevenLabs availability:', error);
-        setIsElevenLabsAvailable(false);
-      }
-    };
-    
-    checkElevenLabsAvailability();
-  }, []);
-
-  // Voice synthesis with ElevenLabs only
+  // Voice synthesis with ElevenLabs and fallback
   const speakWithRoboticVoice = useCallback((text: string) => {
     if (!isAudioEnabled) {
       console.log('Speech synthesis skipped - audio disabled');
       return;
     }
-    
-    // Stop any ongoing speech
-    elevenLabsService.stopSpeaking();
-    
-    // Use ElevenLabs for speech
-    console.log('Using ElevenLabs for speech synthesis');
-    elevenLabsService.speakText(text).catch(error => {
-      console.error('ElevenLabs synthesis failed:', error);
-      // No fallback to browser TTS - we're only using ElevenLabs now
-    });
-  }, [isAudioEnabled]);
 
   // Enhanced subtitle animation with word-by-word display
   const speakWithSubtitle = useCallback(async (text: string) => {
@@ -130,7 +101,7 @@ const FullModeChatbot: React.FC = () => {
 
   // Enhanced message handling with better error management
   const handleSendMessage = useCallback(async (text: string) => {
-    if (!text.trim()) return;
+    if (!text.trim() || isProcessingResponse) return;
 
     setIsProcessingResponse(true);
 
@@ -248,9 +219,9 @@ const FullModeChatbot: React.FC = () => {
     } finally {
       setIsProcessingResponse(false);
     }
-  }, [chatMode, inputMode, isAudioEnabled, isListening, transcript, generateMessageId, speakWithSubtitle]);
+  }, [chatMode, inputMode, isAudioEnabled, isListening, transcript, generateMessageId, speakWithSubtitle, isProcessingResponse]);
 
-  // Continuous mode management - Fixed to avoid infinite loops and collect input for 5 seconds
+  // Continuous mode management - Fixed to avoid infinite loops and collect input properly
   const toggleContinuousMode = useCallback(() => {
     if (!isSupported) return;
     
@@ -261,6 +232,7 @@ const FullModeChatbot: React.FC = () => {
       setContinuousModeActive(false);
       setContinuousInputBuffer('');
       
+      // Clear all timeouts
       if (continuousModeTimeoutRef.current) {
         clearTimeout(continuousModeTimeoutRef.current);
         continuousModeTimeoutRef.current = null;
@@ -274,24 +246,35 @@ const FullModeChatbot: React.FC = () => {
       // Start continuous mode
       setInputMode('continuous');
       setContinuousModeActive(true);
-      startContinuousCycle();
+      // Don't start immediately, let the useEffect handle it
     }
-  }, [inputMode, isSupported]);
+  }, [inputMode, isSupported, stopListening]);
 
   // Function to start a new continuous cycle
   const startContinuousCycle = useCallback(() => {
-    // First make sure we're not already listening
-    if (isListening) {
-      stopListening();
+    // Only proceed if still in continuous mode and not processing
+    if (inputMode !== 'continuous' || !continuousModeActive || isProcessingResponse) {
+      return;
+    }
+    
+    // Clear any existing timeouts
+    if (continuousModeTimeoutRef.current) {
+      clearTimeout(continuousModeTimeoutRef.current);
+      continuousModeTimeoutRef.current = null;
+    }
+    
+    if (continuousModeInputTimeoutRef.current) {
+      clearTimeout(continuousModeInputTimeoutRef.current);
+      continuousModeInputTimeoutRef.current = null;
     }
     
     // Reset buffer for new cycle
     setContinuousInputBuffer('');
+    resetTranscript();
     
-    // Add a small delay before starting to listen again
+    // Small delay before starting to listen
     setTimeout(() => {
-      // Only proceed if still in continuous mode
-      if (inputMode === 'continuous' && continuousModeActive) {
+      if (inputMode === 'continuous' && continuousModeActive && !isProcessingResponse) {
         // Start listening
         startListening({
           continuous: true,
@@ -301,29 +284,27 @@ const FullModeChatbot: React.FC = () => {
         
         // Set timeout to process after 5 seconds
         continuousModeInputTimeoutRef.current = setTimeout(() => {
-          // Stop listening after 5 seconds
           stopListening();
           
-          // Process input if there's anything in the buffer
-          if (continuousInputBuffer.trim()) {
-            handleSendMessage(continuousInputBuffer);
+          // Process input if there's anything meaningful
+          const currentInput = continuousInputBuffer.trim();
+          if (currentInput && currentInput.length > 2) {
+            handleSendMessage(currentInput);
+          } else {
+            // If no meaningful input, wait and restart cycle
+            continuousModeTimeoutRef.current = setTimeout(() => {
+              if (inputMode === 'continuous' && continuousModeActive && !isProcessingResponse) {
+                startContinuousCycle();
+              }
+            }, 1000);
           }
-          
-          // Set timeout to start a new cycle after processing completes
-          continuousModeTimeoutRef.current = setTimeout(() => {
-            // Only restart if still in continuous mode
-            if (inputMode === 'continuous' && continuousModeActive && !isProcessingResponse) {
-              startContinuousCycle();
-            }
-          }, 1000); // Wait 1 second before starting new cycle
         }, 5000); // Collect input for 5 seconds
       }
-    }, 300); // Small delay before starting to listen again
-  }, [startListening, stopListening, continuousInputBuffer, inputMode, isListening, continuousModeActive, isProcessingResponse, handleSendMessage]);
+    }, 500); // Delay before starting to listen again
+  }, [startListening, stopListening, continuousInputBuffer, inputMode, continuousModeActive, isProcessingResponse, handleSendMessage, resetTranscript]);
 
-  // Replace the old continuous mode effect with this one to collect transcript for 5 seconds
+  // Update buffer when transcript changes in continuous mode
   useEffect(() => {
-    // Only update the buffer if in continuous mode and actively listening
     if (inputMode === 'continuous' && isListening && transcript) {
       setContinuousInputBuffer(transcript);
     }
@@ -344,17 +325,32 @@ const FullModeChatbot: React.FC = () => {
   // Initialize continuous mode when it's first activated
   useEffect(() => {
     if (inputMode === 'continuous' && continuousModeActive) {
-      startContinuousCycle();
+      // Add a small delay before starting the first cycle
+      const initTimeout = setTimeout(() => {
+        startContinuousCycle();
+      }, 1000);
+      
+      return () => {
+        clearTimeout(initTimeout);
+      };
     }
-    return () => {
-      if (continuousModeTimeoutRef.current) {
-        clearTimeout(continuousModeTimeoutRef.current);
+  }, [inputMode, continuousModeActive, startContinuousCycle]);
+
+  // Restart continuous cycle after processing is complete
+  useEffect(() => {
+    if (inputMode === 'continuous' && continuousModeActive && !isProcessingResponse && !isListening) {
+      // Only restart if we're not already in a cycle
+      if (!continuousModeTimeoutRef.current && !continuousModeInputTimeoutRef.current) {
+        const restartTimeout = setTimeout(() => {
+          startContinuousCycle();
+        }, 2000); // Wait 2 seconds after processing completes
+        
+        return () => {
+          clearTimeout(restartTimeout);
+        };
       }
-      if (continuousModeInputTimeoutRef.current) {
-        clearTimeout(continuousModeInputTimeoutRef.current);
-      }
-    };
-  }, [continuousModeActive, inputMode, startContinuousCycle]);
+    }
+  }, [inputMode, continuousModeActive, isProcessingResponse, isListening, startContinuousCycle]);
 
   // Handle transcript changes for voice input - MODIFIED to not conflict with continuous mode
   useEffect(() => {
@@ -379,13 +375,11 @@ const FullModeChatbot: React.FC = () => {
     }
   }, [isListening, chatMode, inputMode, state.isLoading, isProcessingResponse, avatarState]);
 
-  // Audio state management - Simplified for ElevenLabs only
-  useEffect(() => {
-    if (!isAudioEnabled) {
-      elevenLabsService.stopSpeaking();
-      console.log('🔇 Audio muted - ElevenLabs speech stopped');
-    }
-  }, [isAudioEnabled]);
+  // Utility functions
+  const resetAvatarState = () => {
+    setAvatarState({ current: 'idle' });
+    setCurrentSubtitle('');
+  };
 
   // Load and save chat history
   useEffect(() => {
@@ -417,6 +411,7 @@ const FullModeChatbot: React.FC = () => {
       setContinuousModeActive(false);
       setContinuousInputBuffer('');
       
+      // Clear all timeouts
       if (continuousModeTimeoutRef.current) {
         clearTimeout(continuousModeTimeoutRef.current);
         continuousModeTimeoutRef.current = null;
@@ -427,7 +422,7 @@ const FullModeChatbot: React.FC = () => {
         continuousModeInputTimeoutRef.current = null;
       }
     } else if (isListening) {
-      // Stop current listening
+      // Stop current listening session
       stopListening();
     } else {
       // Start listening
@@ -437,11 +432,12 @@ const FullModeChatbot: React.FC = () => {
         lang: 'id-ID'
       });
     }
-  }, [inputMode, isListening, isSupported, startListening, stopListening]);
+  }, [isSupported, inputMode, isListening, startListening, stopListening]);
 
   const clearChatHistory = () => {
     setState(prev => ({ ...prev, messages: [] }));
-    ChatHistoryService.clearHistory();
+    // Clear from localStorage directly since clearMessages might not exist
+    localStorage.removeItem('chatHistory');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -450,19 +446,6 @@ const FullModeChatbot: React.FC = () => {
       handleSendMessage(inputText);
     }
   };
-
-  // Cleanup on unmount - Added continuous mode cleanup
-  useEffect(() => {
-    return () => {
-      if (continuousModeTimeoutRef.current) {
-        clearTimeout(continuousModeTimeoutRef.current);
-      }
-      if (continuousModeInputTimeoutRef.current) {
-        clearTimeout(continuousModeInputTimeoutRef.current);
-      }
-      elevenLabsService.stopSpeaking();
-    };
-  }, []);
 
   return (
     <div className="modern-fullmode-chatbot">
@@ -723,6 +706,5 @@ const FullModeChatbot: React.FC = () => {
     </div>
   );
 };
-
 
 export default FullModeChatbot;

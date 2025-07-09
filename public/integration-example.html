@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contoh Integrasi CCTV Chatbot</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            padding: 40px 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0 0 10px;
+            font-size: 2.5em;
+        }
+        
+        .header p {
+            margin: 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .feature-card h3 {
+            margin-top: 0;
+            color: #1976D2;
+        }
+        
+        .integration-examples {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+        }
+        
+        .demo-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .demo-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        
+        .demo-btn:hover {
+            background: #1976D2;
+        }
+        
+        .demo-btn.secondary {
+            background: #6c757d;
+        }
+        
+        .demo-btn.secondary:hover {
+            background: #5a6268;
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #d4edda;
+            color: #155724;
+            border-radius: 6px;
+            border: 1px solid #c3e6cb;
+            margin: 10px 0;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎥 CCTV Information System</h1>
+        <p>Sistem Manajemen CCTV & Layanan Informasi Publik</p>
+    </div>
+
+    <div class="content">
+        <h2>Selamat Datang di Sistem Informasi CCTV</h2>
+        <p>
+            Website ini dilengkapi dengan chatbot interaktif yang akan membantu Anda mendapatkan informasi
+            tentang sistem CCTV, jadwal maintenance, kontak emergency, dan layanan publik lainnya.
+        </p>
+        
+        <div class="status-indicator">
+            <div class="status-dot"></div>
+            <span>Chatbot CCTV Aktif - Siap Membantu Anda</span>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>📍 Lokasi Kamera</h3>
+                <p>Informasi lengkap tentang lokasi dan coverage area dari setiap kamera CCTV yang terpasang.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🚨 Kontak Darurat</h3>
+                <p>Akses cepat ke nomor-nomor penting untuk situasi emergency dan bantuan teknis.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🕐 Jam Operasional</h3>
+                <p>Jadwal operasional sistem CCTV, control room, dan layanan customer support.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🔧 Jadwal Maintenance</h3>
+                <p>Informasi terkini tentang jadwal perawatan rutin dan maintenance sistem.</p>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <strong>💡 Tip:</strong> Klik ikon chatbot di pojok kanan bawah untuk mulai berkomunikasi dengan asisten virtual kami.
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>Demo & Testing</h2>
+        <p>Gunakan tombol di bawah untuk testing fitur chatbot:</p>
+        
+        <div class="demo-buttons">
+            <button class="demo-btn" onclick="CCTVChatbot.show()">
+                Buka Chatbot
+            </button>
+            <button class="demo-btn secondary" onclick="CCTVChatbot.hide()">
+                Tutup Chatbot
+            </button>
+            <button class="demo-btn" onclick="testCameraInfo()">
+                Test Info Kamera
+            </button>
+            <button class="demo-btn" onclick="testEmergencyContact()">
+                Test Emergency
+            </button>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>Contoh Integrasi untuk Website Lain</h2>
+        
+        <div class="integration-examples">
+            <h3>🚀 Cara Integrasi Sederhana</h3>
+            <p>Untuk mengintegrasikan chatbot ini ke website Anda, tambahkan kode berikut:</p>
+        </div>
+
+        <h4>1. Integrasi Basic (Copy-Paste)</h4>
+        <div class="code-block">
+&lt;!-- Tambahkan sebelum closing tag &lt;/body&gt; --&gt;
+&lt;script src="https://yoursite.com/cctv-chatbot-integration.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  CCTVChatbot.init({
+    position: 'bottom-right',  // bottom-left, top-right, top-left
+    theme: 'light',           // light, dark, auto
+    size: 'normal'           // compact, normal, large
+  });
+&lt;/script&gt;
+        </div>
+
+        <h4>2. Integrasi dengan Kustomisasi</h4>
+        <div class="code-block">
+&lt;script&gt;
+  CCTVChatbot.init({
+    position: 'bottom-right',
+    theme: 'auto',
+    size: 'normal',
+    features: {
+      cameraLocations: true,
+      emergencyContacts: true,
+      maintenanceSchedule: true,
+      operationalHours: true
+    },
+    customization: {
+      primaryColor: '#007bff',    // Sesuaikan dengan brand Anda
+      fontFamily: 'system-ui',
+      borderRadius: '12px'
+    },
+    integration: {
+      apiEndpoint: 'https://api.yoursite.com/cctv',  // Optional
+      authToken: 'your-auth-token',  // Jika diperlukan
+      customData: {
+        siteId: 'main-building',
+        contactPerson: 'Admin CCTV'
+      }
+    }
+  });
+&lt;/script&gt;
+        </div>
+
+        <h4>3. Integrasi dengan Event Callbacks</h4>
+        <div class="code-block">
+&lt;script&gt;
+  CCTVChatbot.init({
+    position: 'bottom-right',
+    theme: 'light',
+    onOpen: function() {
+      console.log('Chatbot dibuka');
+      // Analytics tracking, dll
+    },
+    onClose: function() {
+      console.log('Chatbot ditutup');
+    },
+    onMessage: function(message) {
+      console.log('Pesan dikirim:', message);
+      // Custom message handling
+    }
+  });
+  
+  // API untuk kontrol programmatik
+  // CCTVChatbot.show();              // Buka chatbot
+  // CCTVChatbot.hide();              // Tutup chatbot
+  // CCTVChatbot.sendCustomMessage("Halo!"); // Kirim pesan custom
+&lt;/script&gt;
+        </div>
+
+        <h4>4. Integrasi untuk WordPress</h4>
+        <div class="code-block">
+&lt;!-- Tambahkan di functions.php tema Anda --&gt;
+function add_cctv_chatbot() {
+    wp_enqueue_script('cctv-chatbot', 
+        get_template_directory_uri() . '/js/cctv-chatbot-integration.js', 
+        array(), '1.0.0', true);
+    
+    wp_add_inline_script('cctv-chatbot', '
+        CCTVChatbot.init({
+            position: "bottom-right",
+            theme: "auto",
+            customization: {
+                primaryColor: "' . get_theme_mod('primary_color', '#007cba') . '"
+            }
+        });
+    ');
+}
+add_action('wp_enqueue_scripts', 'add_cctv_chatbot');
+        </div>
+
+        <div class="alert alert-info">
+            <strong>📌 Catatan Penting:</strong> 
+            <ul>
+                <li>File <code>cctv-chatbot-integration.js</code> harus di-host di server Anda</li>
+                <li>Chatbot menggunakan browser TTS (Text-to-Speech) bawaan</li>
+                <li>Responsif untuk mobile dan desktop</li>
+                <li>Tidak memerlukan API key eksternal</li>
+                <li>Mudah dikustomisasi sesuai brand website</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2025 CCTV Information System. Chatbot powered by Browser TTS Technology.</p>
+    </div>
+
+    <!-- Integrasi Chatbot CCTV -->
+    <script src="cctv-chatbot-integration.js"></script>
+    <script>
+        // Inisialisasi chatbot dengan konfigurasi default
+        CCTVChatbot.init({
+            position: 'bottom-right',
+            theme: 'auto',
+            size: 'normal',
+            autoGreeting: false,  // Tidak auto-show greeting
+            features: {
+                cameraLocations: true,
+                maintenanceSchedule: true,
+                emergencyContacts: true,
+                reportIssues: true,
+                operationalHours: true
+            },
+            customization: {
+                primaryColor: '#2196F3',
+                fontFamily: 'system-ui, sans-serif',
+                borderRadius: '12px'
+            }
+        });
+
+        // Fungsi demo untuk testing
+        function testCameraInfo() {
+            CCTVChatbot.show();
+            setTimeout(() => {
+                CCTVChatbot.sendCustomMessage(
+                    '📍 <strong>Testing Informasi Kamera:</strong><br>' +
+                    'Anda dapat mengakses informasi lokasi kamera CCTV ' +
+                    'dengan mengetik "lokasi kamera" atau menggunakan tombol quick action.'
+                );
+            }, 500);
+        }
+
+        function testEmergencyContact() {
+            CCTVChatbot.show();
+            setTimeout(() => {
+                CCTVChatbot.sendCustomMessage(
+                    '🚨 <strong>Testing Kontak Darurat:</strong><br>' +
+                    'Dalam situasi emergency, Anda dapat langsung mengakses ' +
+                    'kontak penting melalui chatbot ini.'
+                );
+            }, 500);
+        }
+
+        // Event listener untuk demo
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Website CCTV dengan Chatbot siap digunakan!');
+            console.log('🤖 Chatbot API tersedia di window.CCTVChatbot');
+        });
+    </script>
+</body>
+</html>

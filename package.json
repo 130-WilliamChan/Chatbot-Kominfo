@@ -1,8 +1,11 @@
 {
-  "name": "chatbot-dari-awal",
-  "private": true,
-  "version": "0.0.0",
+  "name": "cctv-chatbot-browser-tts",
+  "description": "Interactive CCTV Information Chatbot with Browser TTS for public service websites",
+  "version": "1.0.0",
   "type": "module",
+  "keywords": ["chatbot", "cctv", "browser-tts", "public-service", "react", "typescript"],
+  "author": "CCTV System Developer",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
